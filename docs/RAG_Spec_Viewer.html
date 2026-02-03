@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>就業規則RAGシステム：詳細設計仕様書ビジュアライザー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f3f4f6;
+            /* Cool Gray 100 */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .chunk-box {
+            transition: all 0.2s ease;
+        }
+
+        .chunk-box:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .chat-bubble {
+            position: relative;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .chat-bubble.user {
+            background-color: #3b82f6;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble.bot {
+            background-color: #ffffff;
+            color: #1f2937;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .step-connector {
+            position: absolute;
+            top: 24px;
+            bottom: -24px;
+            left: 20px;
+            width: 2px;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
+
+        .step-item:last-child .step-connector {
+            display: none;
+        }
+    </style>
+    <!-- Chosen Palette: Technical Blue (Slate/Blue/White) - Professional, trustworthy, suitable for system specs. -->
+    <!-- Application Structure Plan: 
+         - Layout: Single page dashboard with a top navigation bar for the 4 key spec areas (Data, Prompt, Test, Update).
+         - Section 1 (Data Logic): Visualizes the chunking strategy. Interactive text splitter demo to show how "Article" vs "Paragraph" logic works conceptually.
+         - Section 2 (Prompt Design): Displays the persona and a simulated chat interface to demonstrate the "Citation Requirement" and "Tone".
+         - Section 3 (QA & Testing): Uses Chart.js to visualize the evaluation rubric and criteria weights. Interactive score calculator.
+         - Section 4 (Update Flow): A vertical stepper visualising the weekly cycle.
+         - Rationale: Converts dry text specs into active simulations, allowing the user to "feel" how the design decisions impact the system behavior. -->
+    <!-- Visualization & Content Choices: 
+         - Data: "Chunk Visualizer" (HTML/CSS blocks) -> Goal: Inform/Organize -> Shows logical split.
+         - Prompt: "Chat Simulator" (JS/HTML) -> Goal: Inform -> Demonstrates the output format.
+         - QA: "Doughnut Chart" (Chart.js) -> Goal: Compare -> Visualizes scoring distribution.
+         - Lifecycle: "Process Steps" (HTML/CSS) -> Goal: Change -> Shows flow over time.
+         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+
+<body class="text-slate-800 bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">📑</span>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-800">就業規則RAG 詳細設計仕様書</h1>
+                    <p class="text-xs text-slate-500">Project ID: RAG_SAMPLE1 | Status: Design Phase</p>
+                </div>
+            </div>
+            <div class="hidden md:flex space-x-1">
+                <button onclick="switchTab('data')" id="btn-data"
+                    class="px-4 py-2 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">1.
+                    データ前処理</button>
+                <button onclick="switchTab('prompt')" id="btn-prompt"
+                    class="px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">2.
+                    プロンプト設計</button>
+                <button onclick="switchTab('test')" id="btn-test"
+                    class="px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">3.
+                    テスト・評価</button>
+                <button onclick="switchTab('update')" id="btn-update"
+                    class="px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">4.
+                    更新フロー</button>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex overflow-x-auto px-4 py-2 space-x-2 border-t border-slate-100 bg-white">
+            <button onclick="switchTab('data')"
+                class="flex-shrink-0 px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">データ前処理</button>
+            <button onclick="switchTab('prompt')"
+                class="flex-shrink-0 px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600">プロンプト</button>
+            <button onclick="switchTab('test')"
+                class="flex-shrink-0 px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600">評価設計</button>
+            <button onclick="switchTab('update')"
+                class="flex-shrink-0 px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600">更新フロー</button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- TAB 1: Data Preprocessing -->
+        <div id="tab-data" class="tab-content active">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">データ前処理・チャンク設計</h2>
+                <p class="text-slate-600">
+                    RAGの検索精度を左右する「条文分割（チャンキング）」と「メタデータ」の定義です。Pythonスクリプト（src/processor/）での実装仕様となります。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Logic Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                        <span class="bg-blue-100 text-blue-600 p-1.5 rounded-md mr-2 text-xl">✂️</span>
+                        分割ルール (Chunking Rules)
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-slate-700 text-sm">基本ルール: 条 (Article) 単位</h4>
+                            <p class="text-sm text-slate-600 mt-1">原則として1つの条文を1つのチャンクとして扱います。文脈の分断を防ぐためです。</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border-l-4 border-amber-400">
+                            <h4 class="font-bold text-slate-700 text-sm">例外処理: 長文分割</h4>
+                            <p class="text-sm text-slate-600 mt-1">1,000文字を超えるような長大な条文は、「項 (Paragraph)」単位で分割します。</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border-l-4 border-emerald-400">
+                            <h4 class="font-bold text-slate-700 text-sm">重複 (Overlap)</h4>
+                            <p class="text-sm text-slate-600 mt-1">チャンク間に <span
+                                    class="font-mono bg-white px-1 border rounded">50〜100文字</span>
+                                のオーバーラップを持たせ、境界付近の情報欠落を防ぎます。</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                            <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-md mr-2 text-xl">🏷️</span>
+                            メタデータ要件
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-indigo-50 p-3 rounded border border-indigo-100">
+                                <span class="block font-mono text-indigo-700 font-bold mb-1">bylaw_name</span>
+                                <span class="text-slate-600">例：上関町職員就業規則</span>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded border border-indigo-100">
+                                <span class="block font-mono text-indigo-700 font-bold mb-1">article_number</span>
+                                <span class="text-slate-600">例：第12条</span>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded border border-indigo-100">
+                                <span class="block font-mono text-indigo-700 font-bold mb-1">source_url</span>
+                                <span class="text-slate-600">自治体サイトURL</span>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded border border-indigo-100">
+                                <span class="block font-mono text-indigo-700 font-bold mb-1">update_date</span>
+                                <span class="text-slate-600">最終更新日</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Demo -->
+                <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700 p-6 text-white flex flex-col">
+                    <h3 class="text-lg font-bold mb-4 text-slate-200">Processing Simulator</h3>
+                    <p class="text-sm text-slate-400 mb-4">Python前処理の挙動イメージです。以下のテキストがどう分割されるか確認できます。</p>
+
+                    <div
+                        class="flex-grow bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-300 overflow-y-auto mb-4 border border-slate-700 h-64">
+                        <div id="raw-text-display">
+                            第1条（目的）<br>
+                            この規則は、職員の就業に関し必要な事項を定めることを目的とする。<br>
+                            <br>
+                            第2条（定義）<br>
+                            この規則において「職員」とは、地方公務員法に基づき採用された者をいう。<br>
+                            2 前項の職員には、臨時的に任用された者は含まない。<br>
+                            <br>
+                            第3条（服務の根本基準）<br>
+                            職員は、全体の奉仕者として、公共の利益のために勤務し、かつ、職務の遂行に当たっては、全力を挙げてこれに専念しなければならない。<br>
+                            <!-- More dummy text simulates lengthy content -->
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Processing Status:</span>
+                            <span id="process-status" class="text-emerald-400 font-bold">Ready</span>
+                        </div>
+                        <button onclick="simulateProcessing()"
+                            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg">
+                            変換・メタデータ付与を実行 (Run Processor)
+                        </button>
+                    </div>
+
+                    <div id="processed-output" class="mt-4 hidden space-y-2">
+                        <!-- JS generated chunks -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Prompt Design -->
+        <div id="tab-prompt" class="tab-content">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">プロンプト設計 & AI挙動</h2>
+                <p class="text-slate-600">Dify上のSystem Prompt設定と、期待される回答フォーマット（出典明示）の定義です。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Specs Column -->
+                <div class="lg:col-span-5 space-y-6">
+                    <!-- System Role Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <span class="text-8xl">🤖</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">2.1 システムロール定義</h3>
+                        <div class="bg-slate-100 p-4 rounded-lg text-slate-700 italic border-l-4 border-slate-400">
+                            「あなたは自治体の人事労務エキスパートです。提供されたコンテキスト（条文）のみに基づき、職員の質問に回答してください。」
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="text-sm font-bold text-slate-600 mb-2">トーン & マナー</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded border">丁寧</span>
+                                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded border">厳格</span>
+                                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded border">公務員的</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guidelines Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">2.2 回答ガイドライン</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold mr-3">必</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">出典の明示 (Critical)</h4>
+                                    <p class="text-xs text-slate-500 mt-1">回答末尾に必ず <code>【根拠条文: 〇〇規則 第〇条】</code>
+                                        を付与すること。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold mr-3">警</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">ハルシネーション対策</h4>
+                                    <p class="text-xs text-slate-500 mt-1">情報がない場合は知ったかぶりをせず、「規定が見当たりません」と回答する。</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Simulator Column -->
+                <div class="lg:col-span-7">
+                    <div class="bg-white rounded-xl shadow-lg border border-slate-200 h-full flex flex-col">
+                        <div
+                            class="p-4 border-b border-slate-100 bg-slate-50 rounded-t-xl flex justify-between items-center">
+                            <span class="font-bold text-slate-700">Chat Simulation Preview</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Active Model:
+                                Gemma-2-9b</span>
+                        </div>
+
+                        <!-- Chat Area -->
+                        <div id="chat-display" class="flex-grow p-6 overflow-y-auto bg-slate-50/50"
+                            style="min-height: 400px; max-height: 500px;">
+                            <div class="chat-bubble bot">
+                                こんにちは。人事労務担当AIです。就業規則に関する質問があればどうぞ。<br>
+                                <span class="text-xs text-slate-400 mt-1 block">System Ready</span>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="p-4 bg-white border-t border-slate-100 rounded-b-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <button onclick="sendSimulatedMessage('fact')"
+                                    class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded hover:bg-blue-100 text-left">
+                                    Q: 有給休暇の日数は？<br><span class="text-xs opacity-70">事実確認パターン</span>
+                                </button>
+                                <button onclick="sendSimulatedMessage('condition')"
+                                    class="px-4 py-2 bg-purple-50 text-purple-700 text-sm font-medium rounded hover:bg-purple-100 text-left">
+                                    Q: 欠勤がある場合の昇給は？<br><span class="text-xs opacity-70">条件分岐パターン</span>
+                                </button>
+                                <button onclick="sendSimulatedMessage('unknown')"
+                                    class="px-4 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded hover:bg-slate-200 text-left">
+                                    Q: 社員食堂のメニューは？<br><span class="text-xs opacity-70">不在確認パターン</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Testing -->
+        <div id="tab-test" class="tab-content">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">テスト・評価設計</h2>
+                <p class="text-slate-600">30件のテストケースを用いた品質評価基準（Rubric）です。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+
+                <!-- Criteria Card -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6">3.2 採点基準 (Scoring Rubric)</h3>
+
+                    <div class="space-y-4">
+                        <div
+                            class="flex items-center p-4 bg-emerald-50 rounded-lg border border-emerald-100 hover:shadow-md transition-shadow cursor-default">
+                            <div
+                                class="flex-shrink-0 h-12 w-12 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+                                5</div>
+                            <div class="ml-4">
+                                <div class="font-bold text-emerald-800">Perfect (合格)</div>
+                                <div class="text-sm text-emerald-700">正確な回答 ＋ <span
+                                        class="underline decoration-emerald-500/50">正しい出典明記</span>。</div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center p-4 bg-amber-50 rounded-lg border border-amber-100 hover:shadow-md transition-shadow cursor-default">
+                            <div
+                                class="flex-shrink-0 h-12 w-12 rounded-full bg-amber-400 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+                                3</div>
+                            <div class="ml-4">
+                                <div class="font-bold text-amber-800">Partial (要改善)</div>
+                                <div class="text-sm text-amber-700">回答は正しいが、出典が不明瞭または誤り。</div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center p-4 bg-red-50 rounded-lg border border-red-100 hover:shadow-md transition-shadow cursor-default">
+                            <div
+                                class="flex-shrink-0 h-12 w-12 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+                                1</div>
+                            <div class="ml-4">
+                                <div class="font-bold text-red-800">Fail (失敗)</div>
+                                <div class="text-sm text-red-700">回答が不正確、またはハルシネーション（嘘）。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">評価カテゴリ配分 (全30問)</h3>
+                    <p class="text-sm text-slate-500 mb-6">テストケースの構成比率目標</p>
+
+                    <div class="chart-container">
+                        <canvas id="evaluationChart"></canvas>
+                    </div>
+
+                    <div class="mt-6 w-full text-sm text-slate-600 bg-slate-50 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">カテゴリ定義:</h4>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>事実確認 (Fact):</strong> 条文に数値等が明記されている問。</li>
+                            <li><strong>条件分岐 (Conditional):</strong> 「もし〜なら」という複合条件。</li>
+                            <li><strong>不在確認 (None):</strong> 規定外の質問への対応力。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Updates -->
+        <div id="tab-update" class="tab-content">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">更新フロー詳細 (週次)</h2>
+                <p class="text-slate-600">データの鮮度を保つための運用サイクルです。</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 max-w-4xl mx-auto">
+                <div class="relative pl-8">
+                    <!-- Step 1 -->
+                    <div class="step-item relative mb-12">
+                        <div class="step-connector"></div>
+                        <div
+                            class="absolute -left-10 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white">
+                            <span class="text-blue-600 font-bold">1</span>
+                        </div>
+                        <div
+                            class="bg-slate-50 p-4 rounded-lg border border-slate-100 shadow-sm hover:border-blue-300 transition-colors">
+                            <h3 class="text-lg font-bold text-slate-800">収集 (Collection)</h3>
+                            <p class="text-sm text-slate-600 mt-1 mb-2">Pythonスクリプトによる定期チェック。</p>
+                            <div
+                                class="flex items-center space-x-2 text-xs font-mono bg-white p-2 rounded border border-slate-200 text-slate-500">
+                                <span>🔍</span>
+                                <span>Check: 「新着例規」「更新日」 tag on Municipality Site</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-item relative mb-12">
+                        <div class="step-connector"></div>
+                        <div
+                            class="absolute -left-10 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white">
+                            <span class="text-blue-600 font-bold">2</span>
+                        </div>
+                        <div
+                            class="bg-slate-50 p-4 rounded-lg border border-slate-100 shadow-sm hover:border-blue-300 transition-colors">
+                            <h3 class="text-lg font-bold text-slate-800">差分比較 (Diff Check)</h3>
+                            <p class="text-sm text-slate-600 mt-1 mb-2">ローカル保存データとのハッシュ比較。</p>
+                            <div
+                                class="flex items-center space-x-2 text-xs font-mono bg-white p-2 rounded border border-slate-200 text-slate-500">
+                                <span>📂</span>
+                                <span>Compare: data/raw/current vs fetched_html</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-item relative">
+                        <div
+                            class="absolute -left-10 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 ring-8 ring-white">
+                            <span class="text-purple-600 font-bold">3</span>
+                        </div>
+                        <div
+                            class="bg-slate-50 p-4 rounded-lg border border-slate-100 shadow-sm hover:border-purple-300 transition-colors">
+                            <h3 class="text-lg font-bold text-slate-800">自動再登録 (Re-registration)</h3>
+                            <p class="text-sm text-slate-600 mt-1 mb-2">Dify API経由でのナレッジ更新。</p>
+                            <div
+                                class="flex items-center space-x-2 text-xs font-mono bg-white p-2 rounded border border-slate-200 text-slate-500">
+                                <span>🚀</span>
+                                <span>POST /v1/datasets/{id}/document/update</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-6 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400 text-sm">
+            <p>Generated based on "detailed_design_spec.md" for Employment Regulation RAG Project.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Remove active styles from buttons
+            document.querySelectorAll('button[id^="btn-"]').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'text-blue-700');
+                btn.classList.add('text-slate-600');
+            });
+
+            // Show selected tab
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            // Add active style to selected button
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600');
+                activeBtn.classList.add('bg-blue-50', 'text-blue-700');
+            }
+
+            // Init charts if needed
+            if (tabId === 'test' && !window.chartInitialized) {
+                initChart();
+                window.chartInitialized = true;
+            }
+        }
+
+        // --- Data Simulator Logic ---
+        function simulateProcessing() {
+            const statusEl = document.getElementById('process-status');
+            const outputEl = document.getElementById('processed-output');
+
+            statusEl.innerText = "Processing...";
+            statusEl.className = "text-amber-400 font-bold animate-pulse";
+
+            setTimeout(() => {
+                const chunks = [
+                    {
+                        title: "chunk_001.md",
+                        content: "# 第1条（目的）\nこの規則は、職員の就業に関し必要な事項を定めることを目的とする。",
+                        meta: "{ article: 1, source: 'uaminoseki_reg_01' }"
+                    },
+                    {
+                        title: "chunk_002.md",
+                        content: "# 第2条（定義）\nこの規則において「職員」とは、地方公務員法に基づき採用された者をいう。\n2 前項の職員には...",
+                        meta: "{ article: 2, source: 'uaminoseki_reg_01' }"
+                    },
+                    {
+                        title: "chunk_003.md",
+                        content: "# 第3条（服務の根本基準）\n職員は、全体の奉仕者として、公共の利益のために勤務し、かつ...",
+                        meta: "{ article: 3, source: 'uaminoseki_reg_01' }"
+                    }
+                ];
+
+                outputEl.innerHTML = chunks.map(chunk => `
+                    <div class="chunk-box bg-slate-700 p-3 rounded border border-slate-600 text-xs">
+                        <div class="flex justify-between text-slate-400 mb-1 font-mono">
+                            <span>📄 ${chunk.title}</span>
+                            <span>${chunk.meta}</span>
+                        </div>
+                        <div class="text-emerald-300 font-mono whitespace-pre-wrap">${chunk.content}</div>
+                    </div>
+                `).join('');
+
+                outputEl.classList.remove('hidden');
+                statusEl.innerText = "Completed";
+                statusEl.className = "text-emerald-400 font-bold";
+            }, 800);
+        }
+
+        // --- Chat Simulator Logic ---
+        const responses = {
+            'fact': {
+                text: "本規則における年次有給休暇の日数は、勤続年数に応じて定められています。採用後6ヶ月経過し、全労働日の8割以上出勤した職員には、10労働日の有給休暇が付与されます。",
+                source: "【根拠条文: 職員就業規則 第12条 第1項】"
+            },
+            'condition': {
+                text: "昇給については、勤務成績が良好であることが要件となります。欠勤日数が所定の基準を超える場合、昇給の延伸または停止の措置が取られる場合があります。",
+                source: "【根拠条文: 給与条例施行規則 第8条 第3項】"
+            },
+            'unknown': {
+                text: "申し訳ありません。提供された就業規則および関連規定内には、社員食堂のメニューに関する記載は見当たりません。",
+                source: "【根拠なし】"
+            }
+        };
+
+        function sendSimulatedMessage(type) {
+            const chatDisplay = document.getElementById('chat-display');
+
+            // User Message Map
+            const questions = {
+                'fact': "有給休暇の日数は何日ですか？",
+                'condition': "欠勤がある場合、昇給はどうなりますか？",
+                'unknown': "社員食堂の今日のメニューは？"
+            };
+
+            // Add User Bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = "chat-bubble user";
+            userBubble.innerText = questions[type];
+            chatDisplay.appendChild(userBubble);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+            // Typing Delay
+            setTimeout(() => {
+                // Add Bot Bubble
+                const botBubble = document.createElement('div');
+                botBubble.className = "chat-bubble bot animate-pulse";
+                botBubble.innerHTML = `<span class="text-slate-400">Thinking...</span>`;
+                chatDisplay.appendChild(botBubble);
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+                setTimeout(() => {
+                    const data = responses[type];
+                    botBubble.classList.remove('animate-pulse');
+                    botBubble.innerHTML = `
+                        ${data.text}
+                        <div class="mt-2 pt-2 border-t border-slate-200 text-xs font-bold text-blue-600">
+                            ${data.source}
+                        </div>
+                    `;
+                    chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                }, 1000);
+
+            }, 500);
+        }
+
+        // --- Chart Logic ---
+        function initChart() {
+            const ctx = document.getElementById('evaluationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['事実確認 (Fact Retrieval)', '条件分岐 (Conditional)', '不在確認 (No Info)'],
+                    datasets: [{
+                        data: [15, 10, 5], // Example distribution for 30 cases
+                        backgroundColor: [
+                            '#3b82f6', // Blue
+                            '#a855f7', // Purple
+                            '#64748b'  // Slate
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    family: "'Noto Sans JP', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'テストケース構成比 (Target: 30件)',
+                            padding: { bottom: 20 }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tab logic handles init
+        });
+
+    </script>
+</body>
+
+</html>

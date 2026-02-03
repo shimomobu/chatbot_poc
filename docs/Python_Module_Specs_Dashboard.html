@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pythonモジュール詳細仕様書ダッシュボード</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+            color: #334155; /* Slate 700 */
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background-color: #ffffff;
+            border-bottom: 2px solid #3b82f6;
+            color: #1d4ed8;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .logic-step {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid #e2e8f0;
+            padding-bottom: 2rem;
+        }
+        .logic-step:last-child {
+            border-left: 2px solid transparent;
+        }
+        .logic-step::before {
+            content: '';
+            position: absolute;
+            left: -0.55rem;
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 2px solid #3b82f6;
+        }
+
+        .code-preview {
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .trace-table th {
+            @apply bg-slate-100 text-slate-600 text-xs uppercase tracking-wider p-3 text-left border-b border-slate-200;
+        }
+        .trace-table td {
+            @apply p-3 text-sm border-b border-slate-100;
+        }
+    </style>
+    <!-- Chosen Palette: Technical Slate (Slate/Blue/Emerald) - Professional, clean, developer-focused. -->
+    <!-- Application Structure Plan: 
+         1. Header: Project summary and environment context (Common Specs).
+         2. Navigation: Tabs for Scraper, Processor, Evaluator, Env, and the new Traceability Matrix.
+         3. Module Views:
+            - Scraper/Processor/Evaluator: Existing functional logic.
+            - Traceability: A comprehensive mapping table connecting all project documents.
+         Rationale: Traceability is essential for long-term maintenance. It connects the "Why" (Requirements) to the "How" (Design) and the "What" (Implementation). -->
+    <!-- Visualization & Content Choices: 
+         - Traceability: Structured Table (HTML/Tailwind) -> Goal: Organize.
+         - Scraper Logic: Vertical Stepper (HTML/CSS) -> Goal: Flow.
+         - Processor Demo: Split-screen text area (HTML/JS) -> Goal: Transform.
+         - Evaluator Stats: Bar Chart (Chart.js) -> Goal: Compare.
+         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header / Common Specs -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">Pythonモジュール詳細仕様書</h1>
+                    <p class="text-slate-400 text-sm mt-1">就業規則RAGシステム (Kaminoseki Project) - トレーサビリティ管理</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex gap-3 text-xs font-mono">
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Python 3.10+</span>
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">UTF-8</span>
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">requests/bs4</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <div class="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-8 overflow-x-auto" aria-label="Tabs">
+                <button onclick="switchTab('trace')" id="tab-trace" class="tab-btn active px-3 py-4 text-sm font-medium text-slate-700 whitespace-nowrap">
+                    🔗 Traceability Matrix
+                </button>
+                <button onclick="switchTab('scraper')" id="tab-scraper" class="tab-btn px-3 py-4 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                    🕷️ Scraper Module
+                </button>
+                <button onclick="switchTab('processor')" id="tab-processor" class="tab-btn px-3 py-4 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                    ⚙️ Processor Module
+                </button>
+                <button onclick="switchTab('evaluator')" id="tab-evaluator" class="tab-btn px-3 py-4 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                    📊 Evaluator Module
+                </button>
+                <button onclick="switchTab('env')" id="tab-env" class="tab-btn px-3 py-4 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                    🔒 Environment (.env)
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- VIEW: Traceability Matrix -->
+        <div id="view-trace" class="module-view fade-in block">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-slate-800">プロジェクト・トレーサビリティ・マトリクス</h2>
+                <p class="text-slate-600 mt-2">要件、各設計フェーズ、および実装モジュール間の対応関係を定義します。開発の「手戻り」を防止するための管理図です。</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full trace-table">
+                    <thead>
+                        <tr>
+                            <th class="w-24">区分</th>
+                            <th class="w-1/4">ビジネス要件 (Requirements)</th>
+                            <th class="w-1/4">設計ドキュメント (Design Docs)</th>
+                            <th>実装コンポーネント / モジュール</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold text-blue-600">データ収集</td>
+                            <td>自治体例規集(上関町)からの定期的・網羅的なデータ取得</td>
+                            <td>
+                                <b>System Architecture:</b> 1. 物理・論理構成図 (Web)<br>
+                                <b>Implementation Roadmap:</b> Section 1
+                            </td>
+                            <td class="font-mono text-xs">src/scraper/kaminoseki_spider.py</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-emerald-600">データ加工</td>
+                            <td>条文構造の保持とMarkdown化、メタデータ付与</td>
+                            <td>
+                                <b>Detailed Design Spec:</b> 1. チャンク設計<br>
+                                <b>Python Module Spec:</b> Section 3
+                            </td>
+                            <td class="font-mono text-xs">src/processor/md_converter.py</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-purple-600">推論・回答</td>
+                            <td>条文根拠(出典)の明示、SLMによる自然な回答生成</td>
+                            <td>
+                                <b>Detailed Design Spec:</b> 2. プロンプト設計<br>
+                                <b>System Architecture:</b> 2. 推論ワークフロー
+                            </td>
+                            <td class="font-mono text-xs">Ollama (Gemma-2) / Dify Workflow</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-amber-600">精度評価</td>
+                            <td>30件のテストケースに基づく定量的な精度測定</td>
+                            <td>
+                                <b>Detailed Design Spec:</b> 3. 評価設計<br>
+                                <b>Python Module Spec:</b> Section 4
+                            </td>
+                            <td class="font-mono text-xs">tests/evaluator.py<br>tests/test_cases.json</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-slate-600">基盤・運用</td>
+                            <td>シングルホスト(HP Z620)でのDocker完結、週次更新</td>
+                            <td>
+                                <b>Requirements:</b> 5. インフラ・実行環境<br>
+                                <b>Implementation Roadmap:</b> Section 3
+                            </td>
+                            <td class="font-mono text-xs">docker/docker-compose.yml<br>.env</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
+                    <h3 class="font-bold text-blue-800 mb-2">ドキュメント間の整合性</h3>
+                    <p class="text-xs text-blue-700 leading-relaxed">
+                        本マトリクスにより、例えば「上関町のサイトからデータを取得する」という要件が変更された場合、影響を受けるドキュメント（構成図）と、修正が必要なスクリプト（kaminoseki_spider.py）を瞬時に特定可能です。
+                    </p>
+                </div>
+                <div class="p-6 bg-slate-100 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-2">GitHubリポジトリ同期</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        各PythonモジュールはGitHubの <code>src/</code> に配置されますが、設計書(<code>docs/</code>)との不整合が発生した際は、本マトリクスを基準として同期を行います。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 1: Scraper Module -->
+        <div id="view-scraper" class="module-view fade-in hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-slate-800">src/scraper/kaminoseki_spider.py</h2>
+                <p class="text-slate-600 mt-2">上関町の例規集サイト（Reiki-Base等）からHTMLを取得するための収集モジュール仕様。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- IO Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-1 h-fit">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-4">Input / Output</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <span class="block text-xs font-bold text-blue-600 mb-1">INPUT</span>
+                            <span class="font-mono text-sm text-slate-700 break-all">自治体例規集トップURL</span>
+                        </div>
+                        <div class="flex justify-center text-slate-400">↓</div>
+                        <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                            <span class="block text-xs font-bold text-emerald-600 mb-1">OUTPUT</span>
+                            <span class="font-mono text-sm text-slate-700">data/raw/*.html</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logic Flow -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-6">主要ロジック (Core Logic)</h3>
+                    
+                    <div class="logic-step">
+                        <h4 class="font-bold text-slate-800 text-lg">1. フレーム解析</h4>
+                        <p class="text-slate-600 text-sm mt-1">Reiki-Base特有の多重フレーム構造（左メニュー、メイン表示）を解析し、コンテンツ領域を特定します。</p>
+                        <div class="mt-2 text-xs bg-slate-100 p-2 rounded text-slate-500 font-mono inline-block">Method: BeautifulSoup selector analysis</div>
+                    </div>
+
+                    <div class="logic-step">
+                        <h4 class="font-bold text-slate-800 text-lg">2. リンク抽出</h4>
+                        <p class="text-slate-600 text-sm mt-1">目次ページから対象となる編（例：「第3編 人事」）をフィルタリングし、リンクを抽出します。</p>
+                        <ul class="list-disc list-inside mt-2 text-sm text-slate-500 bg-slate-50 p-3 rounded">
+                            <li>第1編 総規</li>
+                            <li class="font-bold text-blue-600 bg-blue-50 px-1 rounded">第3編 人事 (Target)</li>
+                            <li>第14編 消防</li>
+                        </ul>
+                    </div>
+
+                    <div class="logic-step">
+                        <h4 class="font-bold text-slate-800 text-lg">3. 再試行 (Retry Logic)</h4>
+                        <p class="text-slate-600 text-sm mt-1">ネットワークエラー発生時に指数バックオフアルゴリズムを適用します。</p>
+                        <div class="flex items-center gap-2 mt-3">
+                            <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded">Max 5 Retries</span>
+                            <span class="text-xs text-slate-400">Interval: 1s → 2s → 4s ...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: Processor Module -->
+        <div id="view-processor" class="module-view fade-in hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-slate-800">src/processor/md_converter.py</h2>
+                <p class="text-slate-600 mt-2">Difyの検索精度を高めるためのデータ構造化・加工モジュール仕様。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Logic Description -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-4">変換ロジック (Transformation)</h3>
+                        <ul class="space-y-4">
+                            <li class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">1</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">構造抽出</h4>
+                                    <p class="text-sm text-slate-600">HTMLの<code>p</code>タグクラスやインデントから「条」「項」「号」を識別。</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">2</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Markdown化</h4>
+                                    <p class="text-sm text-slate-600">見出しタグ（#）への変換により、Difyのセグメント分割を最適化。</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0">3</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">メタデータ埋め込み</h4>
+                                    <p class="text-sm text-slate-600">YAML Frontmatter形式で条文番号や更新日を付与。</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Live Demo -->
+                <div class="bg-slate-900 rounded-xl shadow-lg overflow-hidden flex flex-col h-fit">
+                    <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-300">Conversion Simulator</span>
+                        <button onclick="runConversionDemo()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors">
+                            ▶ Run Conversion
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 h-80 divide-x divide-slate-700">
+                        <!-- Input -->
+                        <div class="p-4 overflow-y-auto">
+                            <span class="block text-xs font-bold text-slate-500 mb-2">INPUT (Raw HTML)</span>
+                            <div class="font-mono text-xs text-slate-400 whitespace-pre-wrap leading-relaxed">&lt;p class="ArticleTitle"&gt;第12条（有給休暇）&lt;/p&gt;
+&lt;p class="Paragraph"&gt;
+  1 職員は、採用の日から6ヶ月間継続勤務し...
+&lt;/p&gt;
+&lt;p class="UpdateDate"&gt;
+  更新日: 2024-02-03
+&lt;/p&gt;</div>
+                        </div>
+                        <!-- Output -->
+                        <div class="p-4 overflow-y-auto relative">
+                            <span class="block text-xs font-bold text-emerald-500 mb-2">OUTPUT (Markdown)</span>
+                            <div id="demo-output" class="font-mono text-xs text-emerald-300 whitespace-pre-wrap leading-relaxed opacity-50">
+(Click Run to Simulate)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: Evaluator Module -->
+        <div id="view-evaluator" class="module-view fade-in hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-slate-800">tests/evaluator.py</h2>
+                <p class="text-slate-600 mt-2">Dify APIを使用した自動精度評価モジュール仕様。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Specs -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-4">処理フロー</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center p-3 border rounded-lg bg-slate-50">
+                                <span class="text-xl mr-3">🔌</span>
+                                <div>
+                                    <div class="font-bold text-slate-700 text-sm">1. Dify API連携</div>
+                                    <div class="text-xs text-slate-500">Input: Question / Output: Answer + Metadata</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 border rounded-lg bg-slate-50">
+                                <span class="text-xl mr-3">🤖</span>
+                                <div>
+                                    <div class="font-bold text-slate-700 text-sm">2. 自動採点 (Auto-Scoring)</div>
+                                    <div class="text-xs text-slate-500">Check: 出典有無 & Cosine Similarity</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 border rounded-lg bg-slate-50">
+                                <span class="text-xl mr-3">📈</span>
+                                <div>
+                                    <div class="font-bold text-slate-700 text-sm">3. 統計出力</div>
+                                    <div class="text-xs text-slate-500">Output: results.csv, Console Report</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Libraries</h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 font-mono">requests</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 font-mono">pandas</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 font-mono">scikit-learn (similarity)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-4 text-center">Output Visualization (Sample)</h3>
+                    <div class="chart-container">
+                        <canvas id="evalChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mt-4">※カテゴリ別正答率の集計イメージ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: Environment -->
+        <div id="view-env" class="module-view fade-in hidden">
+             <div class="mb-6">
+                <h2 class="text-xl font-bold text-slate-800">依存関係と環境設定 (.env)</h2>
+                <p class="text-slate-600 mt-2">システム全体の構成に必要な環境変数定義。</p>
+            </div>
+            
+            <div class="bg-slate-900 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="ml-2 text-xs text-slate-400 font-mono">.env</span>
+                </div>
+                <pre class="font-mono text-sm text-emerald-400 overflow-x-auto">
+# Dify API Configuration
+DIFY_API_KEY=app-xxxxxx
+DIFY_BASE_URL=http://localhost/v1
+
+# Ollama Configuration
+OLLAMA_HOST=http://localhost:11434
+</pre>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-50 border-t border-slate-200 mt-auto py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 Kaminoseki Employment Regulation RAG Project. Specs based on Project Traceability Matrix.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Tab Switching Logic ---
+        function switchTab(viewId) {
+            // Hide all views
+            document.querySelectorAll('.module-view').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            
+            // Show selected view
+            const selectedView = document.getElementById(`view-${viewId}`);
+            selectedView.classList.remove('hidden');
+            selectedView.classList.add('block');
+            
+            // Reset button styles
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-slate-700');
+                btn.classList.add('text-slate-500');
+            });
+            
+            // Activate button
+            const activeBtn = document.getElementById(`tab-${viewId}`);
+            activeBtn.classList.add('active', 'text-slate-700');
+            activeBtn.classList.remove('text-slate-500');
+
+            // Init chart if on evaluator tab
+            if (viewId === 'evaluator' && !window.chartInitialized) {
+                initChart();
+                window.chartInitialized = true;
+            }
+        }
+
+        // --- Processor Demo Logic ---
+        function runConversionDemo() {
+            const outputEl = document.getElementById('demo-output');
+            outputEl.classList.remove('opacity-50');
+            outputEl.innerHTML = '<span class="animate-pulse">Processing...</span>';
+            
+            setTimeout(() => {
+                outputEl.innerHTML = `---
+bylaw_name: "上関町職員就業規則"
+article_number: "第12条"
+update_date: "2024-02-03"
+---
+# 第12条（有給休暇）
+
+1 職員は、採用の日から6ヶ月間継続勤務し...`;
+            }, 800);
+        }
+
+        // --- Chart Logic ---
+        function initChart() {
+            const ctx = document.getElementById('evalChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['事実確認', '条件分岐', '不在確認'],
+                    datasets: [{
+                        label: 'Pass Rate (%)',
+                        data: [92, 78, 85],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)', // Blue
+                            'rgba(168, 85, 247, 0.7)', // Purple
+                            'rgba(16, 185, 129, 0.7)'  // Emerald
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(168, 85, 247)',
+                            'rgb(16, 185, 129)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '% Passed';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

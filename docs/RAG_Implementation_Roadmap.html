@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>就業規則RAG：実装ロードマップと運用ガイド</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #fafafa;
+        }
+
+        .step-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-card:hover {
+            transform: translateX(8px);
+            border-left-color: #3b82f6;
+        }
+
+        .task-list-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .task-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .code-block {
+            font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+    </style>
+    <!-- Chosen Palette: Slate & Minimal Blue - Serious, professional, and high-contrast for technical instructions. -->
+    <!-- Application Structure Plan: 
+         - Layout: Task-oriented single page. 
+         - Navigation: "Build Phase" (Infrastructure), "Dev Phase" (Python), "Maintenance" (Troubleshooting).
+         - Interactive Element: Task progress tracker and a "Hallucination Root Cause Analysis" helper.
+         - Resource Viz: Comparison of performance (CPU vs GPU swap) via Chart.js.
+         Rationale: Bridges the gap between "what to do" (design) and "how to do it" (implementation). -->
+    <!-- Visualization & Content Choices: 
+         - Roadmap: Sequential task list with status indicators. Goal: Organize.
+         - Tech: Code snippet viewer for Docker Compose. Goal: Inform.
+         - Troubleshooting: Dynamic troubleshooting tree (JS-based). Goal: Relationships.
+         - Performance: Radar Chart for CPU/GPU balance. Goal: Compare.
+         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+
+<body class="text-slate-900">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">🛠️</span>
+                <h1 class="font-bold text-slate-800">RAG実装ロードマップ</h1>
+            </div>
+            <div class="flex gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                <a href="#build" class="hover:text-blue-600 transition-colors">Build</a>
+                <a href="#dev" class="hover:text-blue-600 transition-colors">Develop</a>
+                <a href="#ops" class="hover:text-blue-600 transition-colors">Operations</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-12">
+
+        <!-- Intro Paragraph -->
+        <header class="mb-16">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">最終実装フェーズへの手引き</h2>
+            <p class="text-lg text-slate-600 leading-relaxed max-w-3xl">
+                設計書は完成しました。これからは実機（HP Z620）へのデプロイと、Pythonによるスクレイピングの実装、そして運用の自動化に進みます。
+                本ガイドでは、構築時に発生しうるリスクとその対策、およびインフラの具体的な定義をインタラクティブに確認できます。
+            </p>
+        </header>
+
+        <!-- Section 1: Build Phase -->
+        <section id="build" class="mb-20">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800">インフラ構築 (Infrastructure)</h3>
+            </div>
+
+            <p class="text-slate-600 mb-8">
+                最初のステップは、Dockerを用いた環境の立ち上げです。DifyとOllamaを同一ネットワーク内に配置し、相互通信を確立させます。
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="space-y-4">
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 step-card border-l-4 border-l-transparent">
+                        <h4 class="font-bold mb-2 flex items-center justify-between">
+                            Docker Composeの作成
+                            <span class="status-pill bg-blue-100 text-blue-700">Next Step</span>
+                        </h4>
+                        <p class="text-sm text-slate-500">Difyの公式リポジトリをベースに、Ollamaコンテナを追加したymlファイルを準備します。</p>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 step-card border-l-4 border-l-transparent">
+                        <h4 class="font-bold mb-2 flex items-center justify-between">
+                            SLMモデルのPull
+                            <span class="status-pill bg-slate-100 text-slate-500">Waiting</span>
+                        </h4>
+                        <p class="text-sm text-slate-500">Ollamaコンテナ内で <code>ollama pull gemma2:9b</code>
+                            を実行し、推論モデルをダウンロードします。</p>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 step-card border-l-4 border-l-transparent">
+                        <h4 class="font-bold mb-2 flex items-center justify-between">
+                            Difyとの連携設定
+                            <span class="status-pill bg-slate-100 text-slate-500">Waiting</span>
+                        </h4>
+                        <p class="text-sm text-slate-500">DifyのUIからモデルプロバイダーを選択し、Ollamaのエンドポイントを登録します。</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 rounded-xl p-6 overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">docker-compose.yml
+                            (Snippet)</span>
+                        <div class="flex gap-1.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+                    <div class="code-block text-xs h-64 overflow-y-auto">
+                        <pre>services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+    restart: always
+
+  # Dify containers follow here
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_PASSWORD=dify
+    volumes:
+      - ./volumes/db:/var/lib/postgresql/data
+...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Resource Analysis -->
+        <section class="mb-20 bg-slate-100 -mx-6 px-6 py-16 rounded-3xl">
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h3 class="text-2xl font-bold mb-4">パフォーマンス期待値 (CPU vs GPU)</h3>
+                <p class="text-slate-600">
+                    現状の構成（CPUメイン）と、Tesla P40換装後の期待されるパフォーマンス比較です。
+                    換装後は推論速度と同時実行数が劇的に向上します。
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="perfChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Section 3: Operations & Troubleshooting -->
+        <section id="ops" class="mb-20">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="h-10 w-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">2
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800">運用・トラブルシューティング (Operations)</h3>
+            </div>
+
+            <p class="text-slate-600 mb-8">
+                RAGは構築して終わりではありません。回答の質が落ちた時、以下の診断ツールを使って原因を特定してください。
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Diagnoser -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                    <h4 class="font-bold text-lg mb-6 flex items-center gap-2">
+                        <span>🔍</span> 原因特定シミュレーター
+                    </h4>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-3">発生している問題を選択してください:</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button onclick="diagnose('hallucination')"
+                                    class="p-3 text-sm text-left border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">AIが嘘の回答をする
+                                    (ハルシネーション)</button>
+                                <button onclick="diagnose('no_retrieval')"
+                                    class="p-3 text-sm text-left border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">「分かりません」としか言わない</button>
+                                <button onclick="diagnose('slow')"
+                                    class="p-3 text-sm text-left border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">回答生成が異常に遅い</button>
+                                <button onclick="diagnose('memory')"
+                                    class="p-3 text-sm text-left border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">Dockerコンテナが落ちる</button>
+                            </div>
+                        </div>
+
+                        <div id="diag-result"
+                            class="hidden p-6 bg-slate-50 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-bottom-2">
+                            <h5 id="diag-title" class="font-bold text-blue-700 mb-2">想定される原因</h5>
+                            <p id="diag-desc" class="text-sm text-slate-600 leading-relaxed"></p>
+                            <div class="mt-4 pt-4 border-t border-slate-200">
+                                <span class="text-xs font-bold text-slate-400 uppercase">推奨アクション</span>
+                                <p id="diag-action" class="text-sm font-bold text-slate-800 mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Checklist -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                    <h4 class="font-bold text-lg mb-6">定期点検項目</h4>
+                    <div class="space-y-2">
+                        <div class="task-list-item">
+                            <input type="checkbox" class="mr-3 h-4 w-4 rounded border-slate-300">
+                            <span class="text-sm">自治体サイトの更新有無確認</span>
+                        </div>
+                        <div class="task-list-item">
+                            <input type="checkbox" class="mr-3 h-4 w-4 rounded border-slate-300">
+                            <span class="text-sm">Ollamaのログ監視 (エラー確認)</span>
+                        </div>
+                        <div class="task-list-item">
+                            <input type="checkbox" class="mr-3 h-4 w-4 rounded border-slate-300">
+                            <span class="text-sm">Difyの回答履歴のレビュー</span>
+                        </div>
+                        <div class="task-list-item">
+                            <input type="checkbox" class="mr-3 h-4 w-4 rounded border-slate-300">
+                            <span class="text-sm">ベクトルDBのバックアップ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Call to Action -->
+        <footer class="text-center py-12 border-t border-slate-200">
+            <p class="text-slate-500 text-sm mb-4">就業規則RAGプロジェクト | 構築ロードマップ完了</p>
+            <div class="flex justify-center gap-4">
+                <span class="h-2 w-2 rounded-full bg-slate-300"></span>
+                <span class="h-2 w-2 rounded-full bg-slate-300"></span>
+                <span class="h-2 w-2 rounded-full bg-slate-300"></span>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Performance Chart Logic
+        function initChart() {
+            const ctx = document.getElementById('perfChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['推論速度', '同時実行性', 'モデルサイズ上限', '電力効率', '安定性'],
+                    datasets: [
+                        {
+                            label: '現状 (Xeon CPU + RAM 64GB)',
+                            data: [30, 40, 90, 50, 95],
+                            backgroundColor: 'rgba(148, 163, 184, 0.2)',
+                            borderColor: 'rgba(148, 163, 184, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Tesla P40 導入後 (VRAM 24GB)',
+                            data: [90, 85, 80, 70, 85],
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Diagnosis Logic
+        const diagData = {
+            'hallucination': {
+                title: '原因: 検索結果（コンテキスト）の不足またはノイズ',
+                desc: 'AIが適切な条文を見つけられず、手持ちの知識で無理に回答しようとしています。チャンクの分割サイズが不適切か、プロンプトの制限が緩い可能性があります。',
+                action: 'チャンクサイズを小さくし、プロンプトに「提供された条文のみを使え」と再強調してください。'
+            },
+            'no_retrieval': {
+                title: '原因: ベクトル検索の不一致',
+                desc: 'ユーザーの質問とDB内の条文が数学的に「似ていない」と判断されています。Embeddingモデルの変更、あるいは質問文のリライト（クエリ書き換え）が必要です。',
+                action: 'Difyの検索設定（TopK）を増やすか、ハイブリッド検索を試してください。'
+            },
+            'slow': {
+                title: '原因: CPU推論のボトルネック',
+                desc: '現在の構成ではCPUでLLMを動かしているため、計算に時間がかかります。特にパラメータ数が多いモデル（70B等）を使用している場合に顕著です。',
+                action: 'より軽量なモデル（3B〜8Bクラス）への変更、またはTesla P40への早期換装を推奨します。'
+            },
+            'memory': {
+                title: '原因: RAMの過剰消費またはスワップ発生',
+                desc: 'SLMのロードに加え、Dockerコンテナ群が64GBを使い果たしています。特にベクトルDBのインデックス作成時に負荷が集中します。',
+                action: 'Ollamaの同時接続数を制限し、不要なコンテナを停止してください。'
+            }
+        };
+
+        function diagnose(id) {
+            const data = diagData[id];
+            const resultBox = document.getElementById('diag-result');
+            document.getElementById('diag-title').innerText = data.title;
+            document.getElementById('diag-desc').innerText = data.desc;
+            document.getElementById('diag-action').innerText = data.action;
+            resultBox.classList.remove('hidden');
+        }
+
+        // Initialize
+        window.onload = () => {
+            initChart();
+        }
+    </script>
+</body>
+
+</html>
