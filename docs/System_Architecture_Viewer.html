@@ -73,7 +73,7 @@
                 <h1 class="text-xl font-bold text-gray-800">就業規則RAGシステム構成 <span
                         class="text-sm font-normal text-gray-500 ml-2">HP Z620 / Local Host</span></h1>
             </div>
-            <div class="text-sm text-gray-500">System Design v1.0</div>
+            <div class="text-sm text-gray-500">System Design v1.1</div>
         </div>
     </header>
 
@@ -82,7 +82,8 @@
         <section class="mb-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <h2 class="text-lg font-semibold text-gray-800 mb-2">システム概要</h2>
             <p class="text-gray-600 leading-relaxed">
-                単一ホスト（HP Z620）上でDockerコンテナ技術を用いて構築されるシステム構成です。
+                HP Z620上でDockerを用いて構築される「就業規則RAGチャットボット」の構成図です。
+                インフラ構成に加え、詳細なデータ処理と推論の流れを視覚化しました。
             </p>
         </section>
 
@@ -102,6 +103,7 @@
             </nav>
         </div>
 
+        <!-- VIEW 1: System Architecture -->
         <div id="view-arch" class="view-section space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-4">
@@ -153,7 +155,6 @@
                                         <span class="text-sm font-bold text-gray-700">Vector DB</span>
                                     </div>
                                 </div>
-
                                 <div class="flex flex-col border-l border-blue-200 pl-4 md:pl-6">
                                     <div class="text-xs font-semibold text-purple-500 text-center mb-3">Inference Engine
                                     </div>
@@ -185,18 +186,39 @@
             </div>
         </div>
 
+        <!-- VIEW 2: Data Pipeline -->
         <div id="view-data" class="view-section hidden space-y-6">
             <div class="bg-white p-6 rounded-xl border border-gray-200">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">① データパイプライン (Data Pipeline)</h3>
+                        <p class="text-sm text-gray-500">自治体サイトから取得した生データをベクトルDBへ格納するプロセス。</p>
+                    </div>
+                    <button onclick="playFlow('data')"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">▶
+                        シミュレーション実行</button>
+                </div>
                 <div id="flow-container-data" class="space-y-4 max-w-3xl mx-auto"></div>
             </div>
         </div>
 
+        <!-- VIEW 3: Inference Workflow -->
         <div id="view-rag" class="view-section hidden space-y-6">
             <div class="bg-white p-6 rounded-xl border border-gray-200">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">② 推論ワークフロー (Inference Workflow)</h3>
+                        <p class="text-sm text-gray-500">ユーザーの質問に対して、知識を検索・統合して回答するプロセス。</p>
+                    </div>
+                    <button onclick="playFlow('rag')"
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">▶
+                        シミュレーション実行</button>
+                </div>
                 <div id="flow-container-rag" class="space-y-4 max-w-3xl mx-auto"></div>
             </div>
         </div>
 
+        <!-- VIEW 4: Resources -->
         <div id="view-resource" class="view-section hidden space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center">
@@ -205,10 +227,16 @@
                 </div>
                 <div class="bg-white p-6 rounded-xl border border-gray-200">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">リソース配分要件</h3>
-                    <ul class="text-sm space-y-2">
-                        <li><strong>Ollama:</strong> 32GB (50%)</li>
-                        <li><strong>Dify Cluster:</strong> 16GB (25%)</li>
-                        <li><strong>System/OS:</strong> 16GB (25%)</li>
+                    <ul class="text-sm space-y-3">
+                        <li class="flex items-center"><span
+                                class="w-3 h-3 bg-purple-500 rounded-full mr-2"></span><strong>Ollama:</strong> 32GB
+                            (50%) - モデル展開用</li>
+                        <li class="flex items-center"><span
+                                class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span><strong>Dify Cluster:</strong> 16GB
+                            (25%) - API/UI/Worker</li>
+                        <li class="flex items-center"><span
+                                class="w-3 h-3 bg-gray-400 rounded-full mr-2"></span><strong>System/OS:</strong> 16GB
+                            (25%) - 安定稼働用バッファ</li>
                     </ul>
                 </div>
             </div>
@@ -217,13 +245,31 @@
 
     <script>
         const componentData = {
-            'scraper': { title: 'Scraper (Python)', role: 'Data Collection', tech: 'Requests, BS4', desc: '自治体サイトからHTMLデータを取得します。' },
-            'processor': { title: 'Processor (Python)', role: 'Data Transformation', tech: 'Custom Logic', desc: 'HTMLをMarkdown形式に変換します。' },
-            'storage': { title: 'Local Storage', role: 'Persistence', tech: 'File System', desc: '加工済みファイルを一時保存します。' },
-            'dify-ui': { title: 'Dify Web UI', role: 'User Interface', tech: 'Next.js', desc: 'ユーザーがチャットを行うインターフェース。' },
-            'dify-api': { title: 'Dify API Server', role: 'Orchestration', tech: 'Flask', desc: 'RAGパイプラインの制御を行います。' },
-            'vectordb': { title: 'Vector DB', role: 'Knowledge Store', tech: 'pgvector', desc: '条文データをベクトル化して保存します。' },
-            'ollama': { title: 'Ollama API', role: 'Inference Engine', tech: 'Ollama', port: 'Port: 11434', desc: 'ローカルでSLMを動作させます。' }
+            'scraper': { title: 'Scraper (Python)', role: 'Data Collection', tech: 'Requests, BS4', desc: '自治体例規集サイトからHTMLデータを巡回・取得します。' },
+            'processor': { title: 'Processor (Python)', role: 'Data Transformation', tech: 'Custom Parser', desc: 'HTMLから章・条の構造を解析し、Markdown形式に変換します。' },
+            'storage': { title: 'Local Storage', role: 'Persistence', tech: 'File System', desc: '加工済みファイルを data/processed/ 配下に一時保存します。' },
+            'dify-ui': { title: 'Dify Web UI', role: 'User Interface', tech: 'Next.js', desc: 'ユーザーがチャットやナレッジ管理を行うフロントエンド。' },
+            'dify-api': { title: 'Dify API Server', role: 'Orchestration', tech: 'Python', desc: 'RAG全体のロジックとプロンプト構築を制御する中核。' },
+            'vectordb': { title: 'Vector DB', role: 'Knowledge Store', tech: 'PostgreSQL/pgvector', desc: '条文データをベクトル化して格納。高速な意味検索を担当。' },
+            'ollama': { title: 'Ollama API', role: 'Inference Engine', tech: 'Ollama', desc: 'ローカルでGemma-2やLlama-3を動作させ、推論を行います。' }
+        };
+
+        const flows = {
+            'data': [
+                { title: 'STEP 1: データインジェクション', desc: 'ファイル(PDF/MD)のアップロードやWebスクレイピングによる生データ取得。', icon: '📥' },
+                { title: 'STEP 2: クリーニング & 前処理', desc: '不要なタグや記号を削除し、純粋なテキスト情報を抽出。', icon: '🧹' },
+                { title: 'STEP 3: チャンキング', desc: '長文を適切なサイズ(500〜1000トークン)に分割。文脈維持のため重複を設定。', icon: '✂️' },
+                { title: 'STEP 4: エンベディング', desc: '分割テキストをLLMを介して高次元のベクトル数値に変換。', icon: '🧠' },
+                { title: 'STEP 5: ベクトルストアへの格納', desc: 'ベクトルデータとメタデータをWeaviate等のDBに永続化。', icon: '💾' }
+            ],
+            'rag': [
+                { title: 'STEP 1: クエリの受け取り', desc: 'APIまたはWebチャットUI経由でユーザーの質問を受信。', icon: '👤' },
+                { title: 'STEP 2: 文脈の検索', desc: '質問をベクトル化し、DBから類似度の高い関連条文を検索。', icon: '🔍' },
+                { title: 'STEP 3: リランキング', desc: '抽出された情報の再評価を行い、最も精度の高い情報の優先順位付け。', icon: '📊' },
+                { title: 'STEP 4: プロンプト構築', desc: 'システム指示 + 検索された文脈 + 質問を結合したプロンプトを作成。', icon: '📝' },
+                { title: 'STEP 5: LLM推論', desc: 'Ollama経由でモデルがプロンプトを解析し、最適な回答を生成。', icon: '⚡' },
+                { title: 'STEP 6: 回答の返却', desc: '出典(第◯条)を付与した回答をユーザーに表示。', icon: '💬' }
+            ]
         };
 
         function switchTab(tabId) {
@@ -238,10 +284,51 @@
             const data = componentData[id];
             document.getElementById('info-content').innerHTML = `
                 <h4 class="text-xl font-bold">${data.title}</h4>
-                <p class="text-sm text-blue-600">${data.role}</p>
-                <p class="mt-4">${data.desc}</p>
-                <p class="mt-2 text-xs text-gray-400">Tech: ${data.tech}</p>
+                <p class="text-sm text-blue-600 mb-2 font-semibold">${data.role}</p>
+                <p class="text-gray-700">${data.desc}</p>
+                ${data.port ? `<p class="mt-2 font-mono text-xs bg-gray-100 p-1 inline-block rounded">${data.port}</p>` : ''}
+                <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">Tech: ${data.tech}</div>
             `;
+            document.querySelectorAll('.component-box').forEach(el => el.classList.remove('active'));
+            const target = event.currentTarget;
+            if (target && target.classList.contains('component-box')) target.classList.add('active');
+        }
+
+        function renderFlows() {
+            ['data', 'rag'].forEach(type => {
+                const container = document.getElementById(`flow-container-${type}`);
+                container.innerHTML = flows[type].map((step, idx) => `
+                    <div id="flow-${type}-${idx}" class="flow-step p-4 rounded-lg border border-l-4 border-gray-200 bg-gray-50 flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white p-2 rounded-full shadow-sm text-xl border border-gray-100">${step.icon}</div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">${step.title}</h4>
+                            <p class="text-sm text-gray-600 mt-1">${step.desc}</p>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        let flowTimeouts = [];
+        function playFlow(type) {
+            flowTimeouts.forEach(t => clearTimeout(t));
+            flowTimeouts = [];
+            const steps = flows[type];
+            steps.forEach((_, i) => {
+                const el = document.getElementById(`flow-${type}-${i}`);
+                el.classList.remove('active', 'border-blue-500');
+                el.classList.add('border-gray-200');
+            });
+
+            steps.forEach((_, i) => {
+                const timeout = setTimeout(() => {
+                    if (i > 0) document.getElementById(`flow-${type}-${i - 1}`).classList.remove('active', 'border-blue-500');
+                    const curr = document.getElementById(`flow-${type}-${i}`);
+                    curr.classList.add('active', 'border-blue-500');
+                    curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, i * 1200);
+                flowTimeouts.push(timeout);
+            });
         }
 
         function initChart() {
@@ -256,7 +343,10 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => showDetails('scraper'));
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFlows();
+            showDetails('scraper');
+        });
     </script>
 </body>
 
