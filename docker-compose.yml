@@ -31,6 +31,28 @@ services:
       timeout: "5s"
       retries: 10
       start_period: "30s"
+  # --- 既存のサービス群の後に追加 ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    # NVIDIA GPUを使用する場合は以下のコメントアウトを解除してください
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  networks:
+    # 既存のネットワーク設定（difyのネットワーク名に合わせてください）
+    default:
+      name: dify_net
 
   weaviate:
     image: "semitechnologies/weaviate:1.19.0"
