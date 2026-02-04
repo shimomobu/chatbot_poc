@@ -49,10 +49,10 @@ services:
     #           count: 1
     #           capabilities: [gpu]
 
-  networks:
-    # 既存のネットワーク設定（difyのネットワーク名に合わせてください）
-    default:
-      name: dify_net
+networks:
+  # 既存のネットワーク設定（difyのネットワーク名に合わせてください）
+  default:
+    name: dify_net
 
   weaviate:
     image: "semitechnologies/weaviate:1.19.0"
