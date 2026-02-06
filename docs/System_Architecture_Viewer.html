@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Custom styles for specific component behaviors */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f8f7f4;
@@ -16,10 +16,12 @@
             color: #1f2937;
         }
 
+
         .component-box {
             transition: all 0.3s ease;
             cursor: pointer;
         }
+
 
         .component-box:hover {
             transform: translateY(-2px);
@@ -55,6 +57,12 @@
             margin-left: auto;
             margin-right: auto;
             height: 300px;
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
             max-height: 400px;
         }
 
@@ -62,51 +70,41 @@
             .chart-container {
                 height: 350px;
             }
-        }
+
+            @media (min-width: 768px) {
+                .chart-container {
+                    height: 350px;
+                }
+            }
     </style>
-    <!-- Chosen Palette: Warm Professional (Warm Grey Bg, Slate/Blue Accents, White Cards) -->
-    <!-- Application Structure Plan: 
-         1. Header: Project Context.
-         2. Main Nav: Tabs for 'System Map', 'Data Pipeline', 'RAG Workflow', 'Resource Monitor'.
-         3. System Map (Architecture): Interactive block diagram representing the HP Z620 host and containers. Clicking blocks reveals specs.
-         4. Flows (Pipeline/Workflow): Step-by-step interactive visualizations showing logic flow.
-         5. Resources: Chart.js visualization of RAM allocation.
-         Rationale: Breaks down the complex markdown report into consumable visual layers. -->
-    <!-- Visualization & Content Choices: 
-         - Architecture: HTML Grid Layout with click interactions. Replaces static Mermaid. Goal: Inform/Organize.
-         - Data/RAG Flows: Vertical stepper with 'Play' controls. Goal: Change/Process.
-         - Resources: Doughnut Chart. Goal: Relationships/Proportions.
-         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
+
 
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <span class="text-2xl">🏗️</span>
                 <h1 class="text-xl font-bold text-gray-800">就業規則RAGシステム構成 <span
                         class="text-sm font-normal text-gray-500 ml-2">HP Z620 / Local Host</span></h1>
+                <h1 class="text-xl font-bold text-gray-800">就業規則RAGシステム構成 <span
+                        class="text-sm font-normal text-gray-500 ml-2">HP Z620 / Local Host</span></h1>
             </div>
-            <div class="text-sm text-gray-500">System Design v1.0</div>
+            <div class="text-sm text-gray-500">System Design v1.1</div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
-        <!-- Intro Section -->
         <section class="mb-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <h2 class="text-lg font-semibold text-gray-800 mb-2">システム概要</h2>
             <p class="text-gray-600 leading-relaxed">
-                本アプリケーションは、単一ホスト（HP Z620）上でDockerコンテナ技術を用いて構築される「就業規則RAGチャットボット」のシステム設計書を可視化したものです。
-                下のタブを切り替えて、物理構成、データの流れ、推論プロセス、およびリソース配分を確認してください。
+                HP Z620上でDockerを用いて構築される「就業規則RAGチャットボット」の構成図です。
+                インフラ構成に加え、詳細なデータ処理と推論の流れを視覚化しました。
             </p>
         </section>
 
-        <!-- Navigation Tabs -->
         <div class="border-b border-gray-200 mb-6">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                 <button onclick="switchTab('arch')" id="tab-arch"
@@ -129,10 +127,9 @@
             </nav>
         </div>
 
-        <!-- VIEW 1: System Architecture (Interactive Map) -->
+        <!-- VIEW 1: System Architecture -->
         <div id="view-arch" class="view-section space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Interactive Diagram Column -->
                 <div class="lg:col-span-2 space-y-4">
                     <div class="bg-gray-50 p-6 rounded-xl border border-dashed border-gray-300">
                         <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">🖥️ Physical Host: HP
@@ -142,216 +139,229 @@
                         <div class="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                             <h4 class="text-xs font-bold text-yellow-700 mb-3">🐍 Python Environment (Local/Container)
                             </h4>
+                            <h4 class="text-xs font-bold text-yellow-700 mb-3">🐍 Python Environment (Local/Container)
+                            </h4>
                             <div class="grid grid-cols-2 gap-4">
                                 <div onclick="showDetails('scraper')"
                                     class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
-                                    <span class="text-xl">🕷️</span>
-                                    <div>
-                                        <div class="font-bold text-gray-700 text-sm">Scraper</div>
-                                        <div class="text-xs text-gray-500">Requests/BS4</div>
+                                    <div onclick="showDetails('scraper')"
+                                        class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
+                                        <span class="text-xl">🕷️</span>
+                                        <div>
+                                            <div class="font-bold text-gray-700 text-sm">Scraper</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div onclick="showDetails('processor')"
-                                    class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
-                                    <span class="text-xl">⚙️</span>
-                                    <div>
-                                        <div class="font-bold text-gray-700 text-sm">Processor</div>
-                                        <div class="text-xs text-gray-500">MD Converter</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Storage Layer -->
-                        <div onclick="showDetails('storage')"
-                            class="component-box mb-6 p-3 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center space-x-3 text-gray-600 hover:bg-gray-200">
-                            <span>💾</span>
-                            <span class="font-medium text-sm">Local Storage (data/processed/)</span>
-                        </div>
-
-                        <!-- Docker Layer -->
-                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h4 class="text-xs font-bold text-blue-700 mb-3">🐳 Docker Layer (Single Host Network)</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Dify Cluster -->
-                                <div class="space-y-3">
-                                    <div class="text-xs font-semibold text-blue-500 text-center">Dify Cluster</div>
-                                    <div onclick="showDetails('dify-ui')"
-                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
-                                        <span class="text-sm font-bold text-gray-700">Dify Web UI</span>
-                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Port:
-                                            80</span>
-                                    </div>
-                                    <div onclick="showDetails('dify-api')"
-                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
-                                        <span class="text-sm font-bold text-gray-700">API Server</span>
-                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Backend</span>
-                                    </div>
-                                    <div onclick="showDetails('vectordb')"
-                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
-                                        <span class="text-sm font-bold text-gray-700">Vector DB</span>
-                                        <span
-                                            class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">pgvector</span>
+                                    <div onclick="showDetails('processor')"
+                                        class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
+                                        <div onclick="showDetails('processor')"
+                                            class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
+                                            <span class="text-xl">⚙️</span>
+                                            <div>
+                                                <div class="font-bold text-gray-700 text-sm">Processor</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Inference Engine -->
-                                <div class="space-y-3 border-l border-blue-200 pl-4 md:pl-6">
-                                    <div class="text-xs font-semibold text-purple-500 text-center">Inference Engine
+                                <!-- Storage Layer -->
+                                <div onclick="showDetails('storage')"
+                                    class="component-box mb-6 p-3 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center space-x-3 text-gray-600 hover:bg-gray-200">
+                                    <span>💾</span>
+                                    <span class="font-medium text-sm">Local Storage (data/processed/)</span>
+                                </div>
+
+                                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <h4 class="text-xs font-bold text-blue-700 mb-3">🐳 Docker Layer (Single Host
+                                        Network)</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="space-y-3">
+                                            <div class="text-xs font-semibold text-blue-500 text-center">Dify Cluster
+                                            </div>
+                                            <div onclick="showDetails('dify-ui')"
+                                                class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                                <div onclick="showDetails('dify-ui')"
+                                                    class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                                    <span class="text-sm font-bold text-gray-700">Dify Web UI</span>
+                                                    <span
+                                                        class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Port:
+                                                        80</span>
+                                                </div>
+                                                <div onclick="showDetails('dify-api')"
+                                                    class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                                    <div onclick="showDetails('dify-api')"
+                                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                                        <span class="text-sm font-bold text-gray-700">API Server</span>
+                                                    </div>
+                                                    <div onclick="showDetails('vectordb')"
+                                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                                        <div onclick="showDetails('vectordb')"
+                                                            class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                                            <span class="text-sm font-bold text-gray-700">Vector
+                                                                DB</span>
+                                                            <span
+                                                                class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">pgvector</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Inference Engine -->
+                                                    <div class="space-y-3 border-l border-blue-200 pl-4 md:pl-6">
+                                                        <div class="text-xs font-semibold text-purple-500 text-center">
+                                                            Inference Engine
+                                                        </div>
+                                                        <div onclick="showDetails('ollama')"
+                                                            class="component-box bg-white p-4 rounded shadow-sm border border-purple-100 flex flex-col items-center justify-center h-full">
+                                                            <span class="text-2xl mb-2">🦙</span>
+                                                            <span class="text-sm font-bold text-gray-700">Ollama
+                                                                API</span>
+                                                            <span
+                                                                class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded mt-2">Port:
+                                                                11434</span>
+                                                            <span class="text-xs text-gray-400 mt-1">Llama 3.1 8B</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- External Source -->
+                                        <div class="flex justify-center">
+                                            <div class="h-8 w-0.5 bg-gray-300"></div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div
+                                                class="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm text-sm text-gray-500">
+                                                <span>🌐</span>
+                                                <span>External: 自治体例規集サイト (Reiki-Base)</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div onclick="showDetails('ollama')"
-                                        class="component-box bg-white p-4 rounded shadow-sm border border-purple-100 flex flex-col items-center justify-center h-full">
-                                        <span class="text-2xl mb-2">🦙</span>
-                                        <span class="text-sm font-bold text-gray-700">Ollama API</span>
-                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded mt-2">Port:
-                                            11434</span>
-                                        <span class="text-xs text-gray-400 mt-1">Llama 3.1 8B</span>
+
+                                    <div class="lg:col-span-1">
+                                        <div
+                                            class="sticky top-24 bg-white p-6 rounded-xl shadow-lg border border-gray-200 h-full max-h-[600px] overflow-y-auto">
+                                            <div
+                                                class="sticky top-24 bg-white p-6 rounded-xl shadow-lg border border-gray-200 h-full max-h-[600px] overflow-y-auto">
+                                                <div class="flex items-center space-x-2 mb-4">
+                                                    <span class="text-2xl">ℹ️</span>
+                                                    <h3 class="text-lg font-bold text-gray-800">Component Details</h3>
+                                                </div>
+                                                <div id="info-content" class="text-gray-600 text-sm leading-relaxed">
+                                                    <p class="text-gray-400 italic">コンポーネントを選択してください。</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- External Source -->
-                    <div class="flex justify-center">
-                        <div class="h-8 w-0.5 bg-gray-300"></div>
-                    </div>
-                    <div class="text-center">
-                        <div
-                            class="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm text-sm text-gray-500">
-                            <span>🌐</span>
-                            <span>External: 自治体例規集サイト (Reiki-Base)</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Info Panel -->
-                <div class="lg:col-span-1">
-                    <div
-                        class="sticky top-24 bg-white p-6 rounded-xl shadow-lg border border-gray-200 h-full max-h-[600px] overflow-y-auto">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <span class="text-2xl">ℹ️</span>
-                            <h3 class="text-lg font-bold text-gray-800">Component Details</h3>
-                        </div>
-                        <div id="info-content" class="text-gray-600 text-sm leading-relaxed">
-                            <p class="text-gray-400 italic">左の図のコンポーネントをクリックして詳細を表示してください。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 2: Data Pipeline -->
-        <div id="view-data" class="view-section hidden space-y-6">
-            <div class="bg-white p-6 rounded-xl border border-gray-200">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">① データパイプライン (Data Ingestion)</h3>
-                        <p class="text-sm text-gray-500">自治体サイトからデータを取得し、RAGナレッジとして登録するまでのフロー。</p>
-                    </div>
-                    <button onclick="playFlow('data')"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
-                        <span class="mr-2">▶</span> シミュレーション実行
-                    </button>
-                </div>
-
-                <div class="space-y-4 max-w-3xl mx-auto" id="flow-container-data">
-                    <!-- Steps will be injected by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 3: RAG Workflow -->
-        <div id="view-rag" class="view-section hidden space-y-6">
-            <div class="bg-white p-6 rounded-xl border border-gray-200">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">② 推論ワークフロー (RAG Workflow)</h3>
-                        <p class="text-sm text-gray-500">ユーザーの質問から回答生成までのプロセス。</p>
-                    </div>
-                    <button onclick="playFlow('rag')"
-                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
-                        <span class="mr-2">▶</span> シミュレーション実行
-                    </button>
-                </div>
-
-                <div class="space-y-4 max-w-3xl mx-auto" id="flow-container-rag">
-                    <!-- Steps will be injected by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 4: Resources -->
-        <div id="view-resource" class="view-section hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Chart Section -->
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">メモリ割り当て (RAM: 64GB)</h3>
-                    <p class="text-sm text-gray-500 mb-6 text-center">推論エンジン(Ollama)への重点配分設計</p>
-
-                    <div class="chart-container">
-                        <canvas id="ramChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Specs Text -->
-                <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">リソース配分要件</h3>
-                        <ul class="space-y-4 text-sm text-gray-600">
-                            <li class="flex items-start">
-                                <span
-                                    class="bg-purple-100 text-purple-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Ollama</span>
-                                <span>
-                                    <strong>32GB (50%)</strong><br>
-                                    SLM（Llama 3.1 8B等）のモデルデータをVRAM不足時にシステムRAMへ展開するために最大確保。
-                                </span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-blue-100 text-blue-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Dify
-                                    Cluster</span>
-                                <span>
-                                    <strong>16GB (25%)</strong><br>
-                                    API Server, Web UI, Workerに加え、PostgreSQL (Vector DB)とRedisの動作領域。
-                                </span>
-                            </li>
-                            <li class="flex items-start">
-                                <span
-                                    class="bg-gray-100 text-gray-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">System/OS</span>
-                                <span>
-                                    <strong>16GB (25%)</strong><br>
-                                    ホストOS (Windows/WSL2) およびその他のバックグラウンドプロセス用。
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">ネットワーク & ストレージ</h3>
-                        <div class="grid grid-cols-1 gap-4">
-                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
-                                <div class="font-bold text-gray-700 text-sm mb-1">Network Strategy</div>
-                                <div class="text-xs text-gray-600">
-                                    Docker Bridge Networkを使用。<br>
-                                    <code>host.docker.internal</code> を介してコンテナ間通信を確立。
+                                <!-- VIEW 2: Data Pipeline -->
+                                <div id="view-data" class="view-section hidden space-y-6">
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <div>
+                                                <h3 class="text-lg font-bold text-gray-800">① データパイプライン (Data Pipeline)
+                                                </h3>
+                                                <p class="text-sm text-gray-500">自治体サイトから取得した生データをベクトルDBへ格納するプロセス。</p>
+                                            </div>
+                                            <button onclick="playFlow('data')"
+                                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
+                                                <span class="mr-2">▶</span> シミュレーション実行
+                                            </button>
+                                        </div>
+                                        <div id="flow-container-data" class="space-y-4 max-w-3xl mx-auto"></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
-                                <div class="font-bold text-gray-700 text-sm mb-1">Storage Strategy</div>
-                                <div class="text-xs text-gray-600">
-                                    SSD上にDocker Volumeをマウント。<br>
-                                    Vector DBのI/Oボトルネックを回避。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
+                                <!-- VIEW 3: Inference Workflow -->
+                                <div id="view-rag" class="view-section hidden space-y-6">
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <div>
+                                                <h3 class="text-lg font-bold text-gray-800">② 推論ワークフロー (Inference
+                                                    Workflow)</h3>
+                                                <p class="text-sm text-gray-500">ユーザーの質問に対して、知識を検索・統合して回答するプロセス。</p>
+                                            </div>
+                                            <button onclick="playFlow('rag')"
+                                                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
+                                                <span class="mr-2">▶</span> シミュレーション実行
+                                            </button>
+                                        </div>
+                                        <div id="flow-container-rag" class="space-y-4 max-w-3xl mx-auto"></div>
+                                    </div>
+                                </div>
+
+                                <!-- VIEW 4: Resources -->
+                                <div id="view-resource" class="view-section hidden space-y-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div
+                                            class="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center">
+                                            <h3 class="text-lg font-bold text-gray-800 mb-2">メモリ割り当て (RAM: 64GB)</h3>
+                                            <p class="text-sm text-gray-500 mb-6 text-center">推論エンジン(Ollama)への重点配分設計</p>
+
+                                            <div class="chart-container">
+                                                <canvas id="ramChart"></canvas>
+                                            </div>
+                                        </div>
+
+                                        <!-- Specs Text -->
+                                        <div class="space-y-6">
+                                            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                                <h3 class="text-lg font-bold text-gray-800 mb-4">リソース配分要件</h3>
+                                                <ul class="space-y-4 text-sm text-gray-600">
+                                                    <li class="flex items-start">
+                                                        <span
+                                                            class="bg-purple-100 text-purple-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Ollama</span>
+                                                        <span>
+                                                            <strong>32GB (50%)</strong><br>
+                                                            SLM（Llama 3.1 8B等）のモデルデータをVRAM不足時にシステムRAMへ展開するために最大確保。
+                                                        </span>
+                                                    </li>
+                                                    <li class="flex items-start">
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Dify
+                                                            Cluster</span>
+                                                        <span>
+                                                            <strong>16GB (25%)</strong><br>
+                                                            API Server, Web UI, Workerに加え、PostgreSQL (Vector
+                                                            DB)とRedisの動作領域。
+                                                        </span>
+                                                    </li>
+                                                    <li class="flex items-start">
+                                                        <span
+                                                            class="bg-gray-100 text-gray-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">System/OS</span>
+                                                        <span>
+                                                            <strong>16GB (25%)</strong><br>
+                                                            ホストOS (Windows/WSL2) およびその他のバックグラウンドプロセス用。
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                                <h3 class="text-lg font-bold text-gray-800 mb-4">ネットワーク & ストレージ</h3>
+                                                <div class="grid grid-cols-1 gap-4">
+                                                    <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                                        <div class="font-bold text-gray-700 text-sm mb-1">Network
+                                                            Strategy</div>
+                                                        <div class="text-xs text-gray-600">
+                                                            Docker Bridge Networkを使用。<br>
+                                                            <code>host.docker.internal</code> を介してコンテナ間通信を確立。
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                                        <div class="font-bold text-gray-700 text-sm mb-1">Storage
+                                                            Strategy</div>
+                                                        <div class="text-xs text-gray-600">
+                                                            SSD上にDocker Volumeをマウント。<br>
+                                                            Vector DBのI/Oボトルネックを回避。
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
     </main>
 
     <script>
-        // --- Data Definitions ---
         const componentData = {
             'scraper': {
                 title: 'Scraper (Python)',
@@ -403,27 +413,24 @@
 
         const flows = {
             'data': [
-                { title: '1. Scraping', desc: 'Pythonスクリプトが自治体サイト（上関町等）から例規HTMLを取得。', icon: '🕷️' },
-                { title: '2. Preprocessing', desc: '階層構造（章・節・条）を解析し、Markdown形式に変換。', icon: '⚙️' },
-                { title: '3. Storage', desc: '加工済みデータをローカルフォルダ(data/processed/)に保存。', icon: '💾' },
-                { title: '4. Ingestion', desc: 'Difyのナレッジ機能でデータを読み込み、ベクトル化してDBへ登録。', icon: '📥' }
+                { title: 'STEP 1: データインジェクション', desc: 'ファイル(PDF/MD)のアップロードやWebスクレイピングによる生データ取得。', icon: '📥' },
+                { title: 'STEP 2: クリーニング & 前処理', desc: '不要なタグや記号を削除し、純粋なテキスト情報を抽出。', icon: '🧹' },
+                { title: 'STEP 3: チャンキング', desc: '長文を適切なサイズ(500〜1000トークン)に分割。文脈維持のため重複を設定。', icon: '✂️' },
+                { title: 'STEP 4: エンベディング', desc: '分割テキストをLLMを介して高次元のベクトル数値に変換。', icon: '🧠' },
+                { title: 'STEP 5: ベクトルストアへの格納', desc: 'ベクトルデータとメタデータをWeaviate等のDBに永続化。', icon: '💾' }
             ],
             'rag': [
-                { title: '1. Query', desc: 'ユーザーがDify Web UIから質問を入力（例：「有給は何日？」）。', icon: '👤' },
-                { title: '2. Search', desc: 'Difyが質問をベクトル化し、Vector DBから関連する条文を検索。', icon: '🔍' },
-                { title: '3. Synthesis', desc: '「検索された条文」と「質問」を組み合わせてプロンプトを作成。', icon: '📝' },
-                { title: '4. Generation', desc: 'Ollama APIへプロンプトを送信し、SLMが回答を生成。', icon: '🧠' },
-                { title: '5. Output', desc: '生成された回答に出典（第◯条）を付与してユーザーに表示。', icon: '💬' }
+                { title: 'STEP 1: クエリの受け取り', desc: 'APIまたはWebチャットUI経由でユーザーの質問を受信。', icon: '👤' },
+                { title: 'STEP 2: 文脈の検索', desc: '質問をベクトル化し、DBから類似度の高い関連条文を検索。', icon: '🔍' },
+                { title: 'STEP 3: リランキング', desc: '抽出された情報の再評価を行い、最も精度の高い情報の優先順位付け。', icon: '📊' },
+                { title: 'STEP 4: プロンプト構築', desc: 'システム指示 + 検索された文脈 + 質問を結合したプロンプトを作成。', icon: '📝' },
+                { title: 'STEP 5: LLM推論', desc: 'Ollama経由でモデルがプロンプトを解析し、最適な回答を生成。', icon: '⚡' },
+                { title: 'STEP 6: 回答の返却', desc: '出典(第◯条)を付与した回答をユーザーに表示。', icon: '💬' }
             ]
         };
 
-        // --- Interaction Logic ---
-
-        // Tab Switching
         function switchTab(tabId) {
-            // Hide all views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            // Show selected view
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
 
             // Update tab styles
@@ -477,15 +484,12 @@
             document.getElementById('info-content').innerHTML = content;
         }
 
-        // Flow Visualization Logic
         function renderFlows() {
             ['data', 'rag'].forEach(type => {
                 const container = document.getElementById(`flow-container-${type}`);
-                container.innerHTML = flows[type].map((step, index) => `
-                    <div id="flow-${type}-${index}" class="flow-step p-4 rounded-lg border border-l-4 border-gray-200 bg-gray-50 flex items-start space-x-4">
-                        <div class="flex-shrink-0 bg-white p-2 rounded-full shadow-sm text-xl border border-gray-100">
-                            ${step.icon}
-                        </div>
+                container.innerHTML = flows[type].map((step, idx) => `
+                    <div id="flow-${type}-${idx}" class="flow-step p-4 rounded-lg border border-l-4 border-gray-200 bg-gray-50 flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white p-2 rounded-full shadow-sm text-xl border border-gray-100">${step.icon}</div>
                         <div>
                             <h4 class="font-bold text-gray-800">${step.title}</h4>
                             <p class="text-sm text-gray-600 mt-1">${step.desc}</p>
@@ -497,19 +501,15 @@
 
         let flowTimeouts = [];
         function playFlow(type) {
-            // Clear existing timeouts
             flowTimeouts.forEach(t => clearTimeout(t));
             flowTimeouts = [];
-
             const steps = flows[type];
-            // Reset all
             steps.forEach((_, i) => {
                 const el = document.getElementById(`flow-${type}-${i}`);
                 el.classList.remove('active', 'border-blue-500');
                 el.classList.add('border-gray-200');
             });
 
-            // Play sequence
             steps.forEach((_, i) => {
                 const timeout = setTimeout(() => {
                     // Deactivate previous
@@ -522,10 +522,8 @@
                     // Activate current
                     const curr = document.getElementById(`flow-${type}-${i}`);
                     curr.classList.add('active', 'border-blue-500');
-                    curr.classList.remove('border-gray-200');
                     curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                }, i * 1500); // 1.5s per step
+                }, i * 1200);
                 flowTimeouts.push(timeout);
             });
 
@@ -538,23 +536,13 @@
             flowTimeouts.push(finalTimeout);
         }
 
-        // Chart.js Initialization
         function initChart() {
             const ctx = document.getElementById('ramChart').getContext('2d');
             window.ramChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Ollama (SLM)', 'Dify Cluster', 'System/OS'],
-                    datasets: [{
-                        data: [32, 16, 16],
-                        backgroundColor: [
-                            '#a855f7', // Purple for Ollama
-                            '#3b82f6', // Blue for Dify
-                            '#9ca3af'  // Gray for System
-                        ],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
+                    labels: ['Ollama', 'Dify', 'System'],
+                    datasets: [{ data: [32, 16, 16], backgroundColor: ['#a855f7', '#3b82f6', '#9ca3af'] }]
                 },
                 options: {
                     responsive: true,
@@ -586,8 +574,8 @@
             // Default select first item info
             showDetails('scraper');
         });
-
     </script>
 </body>
+
 
 </html>

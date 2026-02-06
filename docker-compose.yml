@@ -32,6 +32,25 @@ services:
       retries: 10
       start_period: "30s"
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    networks:
+      - "dify_net"
+    # NVIDIA GPUを使用する場合は以下のコメントアウトを解除してください
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
   weaviate:
     image: "semitechnologies/weaviate:1.19.0"
     restart: "always"
@@ -89,7 +108,7 @@ services:
       WEB_API_CORS_ALLOW_ORIGINS: "*"
       STORAGE_TYPE: "local"
       STORAGE_LOCAL_PATH: "/app/api/storage"
-      OLLAMA_API_BASE: "http://host.docker.internal:11434"
+      OLLAMA_API_BASE: "http://ollama:11434"
       CODE_EXECUTION_ENDPOINT: "http://sandbox:8194"
       CODE_EXECUTION_API_KEY: "dify-sandbox-api-key"
       SSRF_PROXY_HTTP_URL: "http://ssrf_proxy:3128"
@@ -124,7 +143,7 @@ services:
       SECRET_KEY: "${SECRET_KEY:-sk-shimon-0123456789-abcdefghijklmn}"
       STORAGE_TYPE: "local"
       STORAGE_LOCAL_PATH: "/app/api/storage"
-      OLLAMA_API_BASE: "http://host.docker.internal:11434"
+      OLLAMA_API_BASE: "http://ollama:11434"
     entrypoint: "/bin/bash /app/api/docker/entrypoint.sh celery -A app.celery worker -P gevent -c 1 -Q dataset,generation,mail --loglevel INFO"
     depends_on:
       db:
