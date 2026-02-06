@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,15 +11,16 @@
         /* Custom styles for specific component behaviors */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f8f7f4; /* Warm neutral background */
+            background-color: #f8f7f4;
+            /* Warm neutral background */
             color: #1f2937;
         }
-        
+
         .component-box {
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .component-box:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -47,19 +49,19 @@
         }
 
         .chart-container {
-            position: relative; 
-            width: 100%; 
-            max-width: 600px; 
-            margin-left: auto; 
-            margin-right: auto; 
-            height: 300px; 
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
             max-height: 400px;
         }
-        
-        @media (min-width: 768px) { 
-            .chart-container { 
-                height: 350px; 
-            } 
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
         }
     </style>
     <!-- Chosen Palette: Warm Professional (Warm Grey Bg, Slate/Blue Accents, White Cards) -->
@@ -77,6 +79,7 @@
          - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
+
 <body class="min-h-screen flex flex-col">
 
     <!-- Header -->
@@ -84,7 +87,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <span class="text-2xl">🏗️</span>
-                <h1 class="text-xl font-bold text-gray-800">就業規則RAGシステム構成 <span class="text-sm font-normal text-gray-500 ml-2">HP Z620 / Local Host</span></h1>
+                <h1 class="text-xl font-bold text-gray-800">就業規則RAGシステム構成 <span
+                        class="text-sm font-normal text-gray-500 ml-2">HP Z620 / Local Host</span></h1>
             </div>
             <div class="text-sm text-gray-500">System Design v1.0</div>
         </div>
@@ -105,16 +109,21 @@
         <!-- Navigation Tabs -->
         <div class="border-b border-gray-200 mb-6">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button onclick="switchTab('arch')" id="tab-arch" class="tab-btn border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600 hover:text-blue-800" aria-current="page">
+                <button onclick="switchTab('arch')" id="tab-arch"
+                    class="tab-btn border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600 hover:text-blue-800"
+                    aria-current="page">
                     物理・論理構成図
                 </button>
-                <button onclick="switchTab('data')" id="tab-data" class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <button onclick="switchTab('data')" id="tab-data"
+                    class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     ① データパイプライン
                 </button>
-                <button onclick="switchTab('rag')" id="tab-rag" class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <button onclick="switchTab('rag')" id="tab-rag"
+                    class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     ② 推論ワークフロー
                 </button>
-                <button onclick="switchTab('resource')" id="tab-resource" class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <button onclick="switchTab('resource')" id="tab-resource"
+                    class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     リソース配分 (64GB)
                 </button>
             </nav>
@@ -126,20 +135,24 @@
                 <!-- Interactive Diagram Column -->
                 <div class="lg:col-span-2 space-y-4">
                     <div class="bg-gray-50 p-6 rounded-xl border border-dashed border-gray-300">
-                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">🖥️ Physical Host: HP Z620 (Linux / WSL2)</h3>
-                        
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">🖥️ Physical Host: HP
+                            Z620 (Linux / WSL2)</h3>
+
                         <!-- Python Layer -->
                         <div class="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <h4 class="text-xs font-bold text-yellow-700 mb-3">🐍 Python Environment (Local/Container)</h4>
+                            <h4 class="text-xs font-bold text-yellow-700 mb-3">🐍 Python Environment (Local/Container)
+                            </h4>
                             <div class="grid grid-cols-2 gap-4">
-                                <div onclick="showDetails('scraper')" class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
+                                <div onclick="showDetails('scraper')"
+                                    class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
                                     <span class="text-xl">🕷️</span>
                                     <div>
                                         <div class="font-bold text-gray-700 text-sm">Scraper</div>
                                         <div class="text-xs text-gray-500">Requests/BS4</div>
                                     </div>
                                 </div>
-                                <div onclick="showDetails('processor')" class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
+                                <div onclick="showDetails('processor')"
+                                    class="component-box bg-white p-3 rounded shadow-sm border border-yellow-100 flex items-center space-x-2">
                                     <span class="text-xl">⚙️</span>
                                     <div>
                                         <div class="font-bold text-gray-700 text-sm">Processor</div>
@@ -150,7 +163,8 @@
                         </div>
 
                         <!-- Storage Layer -->
-                        <div onclick="showDetails('storage')" class="component-box mb-6 p-3 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center space-x-3 text-gray-600 hover:bg-gray-200">
+                        <div onclick="showDetails('storage')"
+                            class="component-box mb-6 p-3 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center space-x-3 text-gray-600 hover:bg-gray-200">
                             <span>💾</span>
                             <span class="font-medium text-sm">Local Storage (data/processed/)</span>
                         </div>
@@ -162,28 +176,36 @@
                                 <!-- Dify Cluster -->
                                 <div class="space-y-3">
                                     <div class="text-xs font-semibold text-blue-500 text-center">Dify Cluster</div>
-                                    <div onclick="showDetails('dify-ui')" class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                    <div onclick="showDetails('dify-ui')"
+                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
                                         <span class="text-sm font-bold text-gray-700">Dify Web UI</span>
-                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Port: 80</span>
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Port:
+                                            80</span>
                                     </div>
-                                    <div onclick="showDetails('dify-api')" class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                    <div onclick="showDetails('dify-api')"
+                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
                                         <span class="text-sm font-bold text-gray-700">API Server</span>
                                         <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Backend</span>
                                     </div>
-                                    <div onclick="showDetails('vectordb')" class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
+                                    <div onclick="showDetails('vectordb')"
+                                        class="component-box bg-white p-3 rounded shadow-sm border border-blue-100 flex items-center justify-between">
                                         <span class="text-sm font-bold text-gray-700">Vector DB</span>
-                                        <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">pgvector</span>
+                                        <span
+                                            class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">pgvector</span>
                                     </div>
                                 </div>
 
                                 <!-- Inference Engine -->
                                 <div class="space-y-3 border-l border-blue-200 pl-4 md:pl-6">
-                                    <div class="text-xs font-semibold text-purple-500 text-center">Inference Engine</div>
-                                    <div onclick="showDetails('ollama')" class="component-box bg-white p-4 rounded shadow-sm border border-purple-100 flex flex-col items-center justify-center h-full">
+                                    <div class="text-xs font-semibold text-purple-500 text-center">Inference Engine
+                                    </div>
+                                    <div onclick="showDetails('ollama')"
+                                        class="component-box bg-white p-4 rounded shadow-sm border border-purple-100 flex flex-col items-center justify-center h-full">
                                         <span class="text-2xl mb-2">🦙</span>
                                         <span class="text-sm font-bold text-gray-700">Ollama API</span>
-                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded mt-2">Port: 11434</span>
-                                        <span class="text-xs text-gray-400 mt-1">Gemma-2 / Llama-3</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded mt-2">Port:
+                                            11434</span>
+                                        <span class="text-xs text-gray-400 mt-1">Llama 3.1 8B</span>
                                     </div>
                                 </div>
                             </div>
@@ -191,10 +213,11 @@
                     </div>
                     <!-- External Source -->
                     <div class="flex justify-center">
-                         <div class="h-8 w-0.5 bg-gray-300"></div>
+                        <div class="h-8 w-0.5 bg-gray-300"></div>
                     </div>
                     <div class="text-center">
-                        <div class="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm text-sm text-gray-500">
+                        <div
+                            class="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm text-sm text-gray-500">
                             <span>🌐</span>
                             <span>External: 自治体例規集サイト (Reiki-Base)</span>
                         </div>
@@ -203,7 +226,8 @@
 
                 <!-- Info Panel -->
                 <div class="lg:col-span-1">
-                    <div class="sticky top-24 bg-white p-6 rounded-xl shadow-lg border border-gray-200 h-full max-h-[600px] overflow-y-auto">
+                    <div
+                        class="sticky top-24 bg-white p-6 rounded-xl shadow-lg border border-gray-200 h-full max-h-[600px] overflow-y-auto">
                         <div class="flex items-center space-x-2 mb-4">
                             <span class="text-2xl">ℹ️</span>
                             <h3 class="text-lg font-bold text-gray-800">Component Details</h3>
@@ -224,7 +248,8 @@
                         <h3 class="text-lg font-bold text-gray-800">① データパイプライン (Data Ingestion)</h3>
                         <p class="text-sm text-gray-500">自治体サイトからデータを取得し、RAGナレッジとして登録するまでのフロー。</p>
                     </div>
-                    <button onclick="playFlow('data')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
+                    <button onclick="playFlow('data')"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
                         <span class="mr-2">▶</span> シミュレーション実行
                     </button>
                 </div>
@@ -243,7 +268,8 @@
                         <h3 class="text-lg font-bold text-gray-800">② 推論ワークフロー (RAG Workflow)</h3>
                         <p class="text-sm text-gray-500">ユーザーの質問から回答生成までのプロセス。</p>
                     </div>
-                    <button onclick="playFlow('rag')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
+                    <button onclick="playFlow('rag')"
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
                         <span class="mr-2">▶</span> シミュレーション実行
                     </button>
                 </div>
@@ -261,7 +287,7 @@
                 <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
                     <h3 class="text-lg font-bold text-gray-800 mb-2">メモリ割り当て (RAM: 64GB)</h3>
                     <p class="text-sm text-gray-500 mb-6 text-center">推論エンジン(Ollama)への重点配分設計</p>
-                    
+
                     <div class="chart-container">
                         <canvas id="ramChart"></canvas>
                     </div>
@@ -273,21 +299,24 @@
                         <h3 class="text-lg font-bold text-gray-800 mb-4">リソース配分要件</h3>
                         <ul class="space-y-4 text-sm text-gray-600">
                             <li class="flex items-start">
-                                <span class="bg-purple-100 text-purple-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Ollama</span>
+                                <span
+                                    class="bg-purple-100 text-purple-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Ollama</span>
                                 <span>
                                     <strong>32GB (50%)</strong><br>
-                                    SLM（Gemma-2-9B等）のモデルデータをVRAM不足時にシステムRAMへ展開するために最大確保。
+                                    SLM（Llama 3.1 8B等）のモデルデータをVRAM不足時にシステムRAMへ展開するために最大確保。
                                 </span>
                             </li>
                             <li class="flex items-start">
-                                <span class="bg-blue-100 text-blue-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Dify Cluster</span>
+                                <span class="bg-blue-100 text-blue-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">Dify
+                                    Cluster</span>
                                 <span>
                                     <strong>16GB (25%)</strong><br>
                                     API Server, Web UI, Workerに加え、PostgreSQL (Vector DB)とRedisの動作領域。
                                 </span>
                             </li>
                             <li class="flex items-start">
-                                <span class="bg-gray-100 text-gray-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">System/OS</span>
+                                <span
+                                    class="bg-gray-100 text-gray-800 p-1 rounded mr-3 text-xs font-bold mt-0.5">System/OS</span>
                                 <span>
                                     <strong>16GB (25%)</strong><br>
                                     ホストOS (Windows/WSL2) およびその他のバックグラウンドプロセス用。
@@ -368,7 +397,7 @@
                 role: 'Inference Engine',
                 tech: 'Ollama / SLM',
                 port: 'Port: 11434',
-                desc: 'ローカルで軽量言語モデル（Gemma-2, Llama-3など）を動作させるためのエンジン。Difyからのリクエストに応じてテキスト生成を行います。'
+                desc: 'ローカルで軽量言語モデル（Llama 3.1 8Bなど）を動作させるためのエンジン。Difyからのリクエストに応じてテキスト生成を行います。'
             }
         };
 
@@ -407,7 +436,7 @@
             activeTab.classList.add('border-blue-500', 'text-blue-600');
 
             // Init chart if resource tab is selected and not init
-            if(tabId === 'resource' && !window.ramChartInstance) {
+            if (tabId === 'resource' && !window.ramChartInstance) {
                 initChart();
             }
         }
@@ -423,7 +452,7 @@
             // Ideally passing 'this' or finding by ID would be better, but we rely on simple class toggle here for clicked item visual
             // Since we pass ID, we need to find element with onclick matching this ID for perfect highlight, 
             // but for simplicity we will just render the content.
-            
+
             const content = `
                 <div class="space-y-4 animate-fade-in">
                     <div>
@@ -485,11 +514,11 @@
                 const timeout = setTimeout(() => {
                     // Deactivate previous
                     if (i > 0) {
-                        const prev = document.getElementById(`flow-${type}-${i-1}`);
+                        const prev = document.getElementById(`flow-${type}-${i - 1}`);
                         prev.classList.remove('active', 'border-blue-500');
                         prev.classList.add('border-gray-200');
                     }
-                    
+
                     // Activate current
                     const curr = document.getElementById(`flow-${type}-${i}`);
                     curr.classList.add('active', 'border-blue-500');
@@ -502,9 +531,9 @@
 
             // Finish state
             const finalTimeout = setTimeout(() => {
-                 const last = document.getElementById(`flow-${type}-${steps.length-1}`);
-                 last.classList.remove('active', 'border-blue-500');
-                 last.classList.add('border-gray-200');
+                const last = document.getElementById(`flow-${type}-${steps.length - 1}`);
+                last.classList.remove('active', 'border-blue-500');
+                last.classList.add('border-gray-200');
             }, steps.length * 1500 + 1000);
             flowTimeouts.push(finalTimeout);
         }
@@ -540,7 +569,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return ` ${context.label}: ${context.raw} GB`;
                                 }
                             }
@@ -555,9 +584,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderFlows();
             // Default select first item info
-            showDetails('scraper'); 
+            showDetails('scraper');
         });
 
     </script>
 </body>
+
 </html>
