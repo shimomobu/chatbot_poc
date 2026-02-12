@@ -9,9 +9,9 @@ DATA_DIR = BASE_DIR / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
-# ターゲット設定 (山口県熊毛郡上関町)
+# ターゲット設定 (大阪府豊中市)
 # 例規集のトップページや検索システムのURLをここに定義します
-TARGET_BASE_URL = "https://www.town.kaminoseki.lg.jp/reiki_int/reiki_menu.html" # 仮のURL
+TARGET_BASE_URL = "https://www1.g-reiki.net/toyonaka/reiki_menu.html"
 
 # スクレイピング設定
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

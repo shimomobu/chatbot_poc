@@ -113,6 +113,8 @@ services:
       CODE_EXECUTION_API_KEY: "dify-sandbox-api-key"
       SSRF_PROXY_HTTP_URL: "http://ssrf_proxy:3128"
       SSRF_PROXY_HTTPS_URL: "http://ssrf_proxy:3128"
+      CELERY_BROKER_URL: "redis://:${REDIS_PASSWORD:-dify_redis_secure_password}@redis:6379/1"
+      CELERY_RESULT_BACKEND: "redis://:${REDIS_PASSWORD:-dify_redis_secure_password}@redis:6379/1"
     depends_on:
       db:
         condition: "service_healthy"
@@ -144,6 +146,8 @@ services:
       STORAGE_TYPE: "local"
       STORAGE_LOCAL_PATH: "/app/api/storage"
       OLLAMA_API_BASE: "http://ollama:11434"
+      CELERY_BROKER_URL: "redis://:${REDIS_PASSWORD:-dify_redis_secure_password}@redis:6379/1"
+      CELERY_RESULT_BACKEND: "redis://:${REDIS_PASSWORD:-dify_redis_secure_password}@redis:6379/1"
     entrypoint: "/bin/bash /app/api/docker/entrypoint.sh celery -A app.celery worker -P gevent -c 1 -Q dataset,generation,mail --loglevel INFO"
     depends_on:
       db:
